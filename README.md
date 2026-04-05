@@ -4,3 +4,4 @@ In many online learning platforms, learners often find it hard to keep their mot
 
 ### Figma mockup: <https://www.figma.com/board/8YwG3fuwkDKVuI5vuZh7HF/360?node-id=0-1&t=32CUgvxIA7KSbHKx-1>
 ### Project Proposal: [Project Proposal.pdf](./Project%20Proposal.pdf)
+### Promotional Video: [Youtube](https://youtu.be/fQcJUpkmFVY?si=DoeVA-TE9Gmw6Ebn)
