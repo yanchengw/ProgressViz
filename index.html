@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProgressViz Interactive Demo</title>
+    <style>
+        :root {
+            --bg-canvas: #f6f6f6;
+            --main-container-bg: #ffffff;
+            --text-body: #666666;
+            --input-yellow: #fff1c7;
+            --input-border: #f8db7b;
+            --btn-next-bg: #ffd6d6;
+            --btn-next-text: #8b3c3c;
+            --viz-green: #4CAF50;
+        }
+
+        body { font-family: sans-serif; background-color: var(--bg-canvas); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(#d0d0d0 1px, transparent 1px); background-size: 20px 20px; z-index: -1; }
+
+        .screen-container { width: 90%; max-width: 600px; background: var(--main-container-bg); border: 1px solid #e0e0e0; border-radius: 8px; padding: 30px; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: max-width 0.4s ease; }
+        .page-label { position: absolute; top: -12px; left: 20px; background: #e0e0e0; padding: 2px 8px; font-size: 12px; border-radius: 4px; font-family: monospace; }
+
+        /* App Window */
+        .app-frame { border: 1px solid #999; padding: 25px; border-radius: 4px; min-height: 380px; display: flex; flex-direction: column; background: white; }
+        .app-header { display: flex; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 20px; }
+        .viz-logo { font-weight: bold; font-size: 20px; }
+        .viz-color { color: var(--viz-green); }
+
+        /* General Typography */
+        .welcome-msg { margin: 10px 0 5px; text-align: center; font-size: 1.4rem; }
+        .welcome-msg-large { font-size: 2rem; margin-top: 40px; }
+        .helper-msg { color: var(--text-body); text-align: center; margin-bottom: 25px; font-size: 1rem; }
+        .helper-msg-name { font-size: 1.5rem; color: #333; font-weight: bold; margin-top: 0; }
+
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; gap: 2px; margin-bottom: 20px; }
+        .tab { background: #e0e0e0; border: 1px solid #ccc; padding: 8px 12px; font-size: 0.8rem; cursor: pointer; flex: 1; text-align: center; }
+        .tab.active { background: var(--input-yellow); border-bottom: none; font-weight: bold; }
+        
+        .dashboard-title { text-align: left; font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .course-card-item { text-align: center; }
+        .course-thumb { width: 100%; height: 80px; background: #eee; border-radius: 4px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #444; font-weight: bold; overflow: hidden; border: 1px solid #ddd; }
+        .course-title { font-size: 0.8rem; font-weight: bold; }
+
+        /* Buttons & Footer */
+        .btn-next { align-self: flex-end; margin-top: auto; background: var(--btn-next-bg); border: 1px solid #ffb8b8; color: var(--btn-next-text); padding: 10px 30px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-next:hover { background: #ffc4c4; }
+        .footer-explanation { margin-top: 25px; color: #444; font-size: 15px; line-height: 1.6; }
+
+        /* Interactive Roles/Actions */
+        .role-selector { background: var(--input-yellow); border: 1px solid var(--input-border); padding: 12px; border-radius: 6px; cursor: pointer; width: 220px; margin: 0 auto; position: relative; }
+        .options-menu { position: absolute; top: 100%; left: 0; width: 100%; background: #e0e0e0; border: 1px solid #ccc; display: none; z-index: 10; }
+        .options-menu div { padding: 10px; border-bottom: 1px solid #bbb; }
+        .account-actions { display: flex; gap: 15px; justify-content: center; margin: 20px 0; }
+        .action-card { flex: 1; padding: 35px 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 14px; border: 1px solid transparent; transition: 0.2s; }
+        .action-card.selected { border: 2px solid #666; transform: scale(1.05); }
+        .blue-card { background: #d6ebff; border-color: #b8daff; }
+        .purple-card { background: #e5d6ff; border-color: #d1b8ff; }
+        .input-group { display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%; }
+        .app-input { background: var(--input-yellow); border: 1px solid var(--input-border); padding: 12px; border-radius: 6px; width: 80%; max-width: 300px; font-size: 14px; outline: none; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="canvas"></div>
+
+    <div id="mainContainer" class="screen-container">
+        <div id="pageLabel" class="page-label">Log-in Page 1</div>
+        
+        <div class="app-frame">
+            <div class="app-header">
+                <span class="viz-logo">📊 Progress<span class="viz-color">Viz</span></span>
+            </div>
+
+            <div id="step1">
+                <h2 class="welcome-msg">Welcome to ProgressViz!</h2>
+                <p class="helper-msg">Your self-learning helper!</p >
+                <div class="role-selector" onclick="toggleMenu()">
+                    <span id="selectedRole">Select</span>
+                    <div id="menu" class="options-menu">
+                        <div onclick="setRole('Student')">Student</div>
+                        <div onclick="setRole('Instructor')">Instructor</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step2" class="hidden">
+                <h2 class="welcome-msg">Good morning!</h2>
+                <p class="helper-msg">Student 4375 😄</p >
+                <div class="account-actions">
+                    <div id="createBtn" class="action-card blue-card" onclick="selectAction('create')">Create an account</div>
+                    <div id="signBtn" class="action-card purple-card" onclick="selectAction('sign')">Sign in to an account</div>
+                </div>
+            </div>
+
+            <div id="step3" class="hidden">
+                <h2 class="welcome-msg">Create your profile now!</h2>
+                <div class="input-group">
+                    <input type="text" id="usernameInput" class="app-input" placeholder="Enter Username">
+                    <input type="password" id="passInput" class="app-input" placeholder="Enter Password">
+                    <input type="password" id="retypeInput" class="app-input" placeholder="Retype Password">
+                </div>
+            </div>
+
+            <div id="step4" class="hidden">
+                <h2 class="welcome-msg welcome-msg-large">Good morning!</h2>
+                <p id="displayName" class="helper-msg helper-msg-name">User 😊</p >
+            </div>
+
+            <div id="step5" class="hidden">
+                <div class="nav-tabs">
+                    <div class="tab" onclick="goToStep6()">All Courses</div>
+                    <div class="tab active">My Dashboard</div>
+                    <div class="tab">Heatmap</div>
+                    <div class="tab">Discussion</div>
+                    <div class="tab">Account</div>
+                </div>
+                <div class="dashboard-title">All Registered Courses</div>
+                <div class="course-grid">
+                    <div class="course-card-item"><div class="course-thumb" style="background: #e1f5fe;">Algebra</div><div class="course-title">Algebra 101</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #f3e5f5;">Music</div><div class="course-title">Music 185</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #e8f5e9;">Art History</div><div class="course-title">Art History 103</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #fff3e0;">Chinese</div><div class="course-title">Chinese 201</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #efebe9;">Spanish</div><div class="course-title">Spanish 102</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #eceff1;">Marketing</div><div class="course-title">Marketing 108</div></div>
+                </div>
+            </div>
+
+            <div id="step6" class="hidden">
+                <div class="nav-tabs">
+                    <div class="tab active">All Courses</div>
+                    <div class="tab" onclick="showStep(5, 'Interface: My Dashboard', 'Registered courses view.')">My Dashboard</div>
+                    <div class="tab">Heatmap</div>
+                    <div class="tab">Discussion</div>
+                    <div class="tab">Account</div>
+                </div>
+                <div class="dashboard-title">All Courses</div>
+                <div class="course-grid">
+                    <div class="course-card-item"><div class="course-thumb" style="background: #fff9c4;">ECONOMICS</div><div class="course-title">Economics</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #f8bbd0;">PSYCHOLOGY</div><div class="course-title">Psychology</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #d1c4e9;">PHYSICS</div><div class="course-title">Physics</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #ffccbc;">ACCOUNTING</div><div class="course-title">Accounting</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #c8e6c9;">CHEMISTRY</div><div class="course-title">Chemistry</div></div>
+                    <div class="course-card-item"><div class="course-thumb" style="background: #b2ebf2;">MEDIA</div><div class="course-title">Media Studies</div></div>
+                </div>
+            </div>
+
+            <button id="nextBtn" class="btn-next" onclick="navigate()">Next</button>
+        </div>
+
+        <p id="footerText" class="footer-explanation">Select your role to start.</p >
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedActionType = null;
+
+        function toggleMenu() {
+            const menu = document.getElementById('menu');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function setRole(role) {
+            document.getElementById('selectedRole').innerText = role;
+            document.getElementById('menu').style.display = 'none';
+            event.stopPropagation();
+        }
+
+        function selectAction(type) {
+            selectedActionType = type;
+            document.getElementById('createBtn').classList.remove('selected');
+            document.getElementById('signBtn').classList.remove('selected');
+            document.getElementById(type + 'Btn').classList.add('selected');
+        }
+
+        function goToStep6() {
+            showStep(6, "Interface: All Courses", "This page displays all available courses that students can browse and join.");
+        }
+
+        function navigate() {
+            if (currentStep === 1) {
+                if (document.getElementById('selectedRole').innerText === "Student") {
+                    showStep(2, "Log-in Page 2", "Select an action to proceed.");
+                } else { alert("Select 'Student'!"); }
+            } 
+            else if (currentStep === 2) {
+                if (selectedActionType === 'create') { showStep(3, "Log-in Page 3", "Fill in your details."); }
+                else { alert("Select 'Create an account'!"); }
+            }
+            else if (currentStep === 3) {
+                const user = document.getElementById('usernameInput').value;
+                if (!user) { alert("Enter username!"); }
+                else { 
+                    document.getElementById('displayName').innerText = user + " 😊";
+                    showStep(4, "Log-in Page 4", "Welcome message screen."); 
+                }
+            }
+            else if (currentStep === 4) {
+                document.getElementById('mainContainer').style.maxWidth = "800px";
+                showStep(5, "Interface: My Dashboard", "View your enrolled courses.");
+            }
+            else if (currentStep === 5) {
+                goToStep6();
+                document.getElementById('nextBtn').innerText = "Finish";
+            }
+            else { alert("Prototype demo complete!"); }
+        }
+
+        function showStep(stepNum, label, footer) {
+            for(let i=1; i<=6; i++) {
+                const el = document.getElementById('step' + i);
+                if(el) el.classList.add('hidden');
+            }
+            document.getElementById('step' + stepNum).classList.remove('hidden');
+            document.getElementById('pageLabel').innerText = label;
+            document.getElementById('footerText').innerText = footer;
+            currentStep = stepNum;
+        }
+    </script>
+</body>
+</html>

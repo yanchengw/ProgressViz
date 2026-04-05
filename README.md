@@ -1,2 +1,3 @@
-# ProgressViz
-UW Info360 Project Proof of Concept
+# ProgressViz: An online learning platform with visual learning heatmaps, targeted feedback, and a peer challenge arena for university students.
+
+In many online learning platforms, learners often find it hard to keep their motivation because they can't see if they are actually improving. Most current course structures focus too much on finishing tasks like checking off a box, but they don't help learners recognize their real growth in understanding or skills. When this progress feels invisible, students start to doubt if their effort is worth it and eventually quit. This issue is related to how feedback and self assessment are designed. We believe that improving how learning progress is experienced through better design is a great opportunity to make online education more effective.
