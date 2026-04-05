@@ -2,4 +2,5 @@
 
 In many online learning platforms, learners often find it hard to keep their motivation because they can't see if they are actually improving. Most current course structures focus too much on finishing tasks like checking off a box, but they don't help learners recognize their real growth in understanding or skills. When this progress feels invisible, students start to doubt if their effort is worth it and eventually quit. This issue is related to how feedback and self assessment are designed. We believe that improving how learning progress is experienced through better design is a great opportunity to make online education more effective.
 
-Figma mockup: <https://www.figma.com/board/8YwG3fuwkDKVuI5vuZh7HF/360?node-id=0-1&t=32CUgvxIA7KSbHKx-1>
+### Figma mockup: <https://www.figma.com/board/8YwG3fuwkDKVuI5vuZh7HF/360?node-id=0-1&t=32CUgvxIA7KSbHKx-1>
+### Project Proposal: [Project Proposal.pdf](./Project%20Proposal.pdf)
